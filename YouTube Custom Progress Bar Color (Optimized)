@@ -1,0 +1,95 @@
+// ==UserScript==
+// @name         YouTube Custom Progress Bar Color (Optimized)
+// @namespace    http://tampermonkey.net/
+// @version      1.7
+// @description  Customize YouTube progress bar color efficiently
+// @author       You
+// @match        https://*.youtube.com/*
+// @grant        none
+// ==/UserScript==
+
+(function() {
+    'use strict';
+
+    // Configuration
+    const PROGRESS_COLOR = '#ff0000';
+    const PROGRESS_COLOR_SEMI = 'rgba(255, 0, 0, 0.5)';
+
+    // Single CSS injection
+    const style = document.createElement('style');
+    style.textContent = `
+        .ytp-progress-bar .ytp-play-progress,
+        .ytp-swatch-background-color {
+            background: ${PROGRESS_COLOR} !important;
+            background-image: none !important;
+        }
+
+        .ytp-scrubber-button {
+            background: ${PROGRESS_COLOR} !important;
+            border-color: ${PROGRESS_COLOR} !important;
+        }
+
+        .ytp-hover-progress,
+        .ytp-load-progress {
+            background: ${PROGRESS_COLOR_SEMI} !important;
+            background-image: none !important;
+        }
+    `;
+
+    // Throttle function to limit execution rate
+    function throttle(func, limit) {
+        let inThrottle;
+        return function(...args) {
+            if (!inThrottle) {
+                func.apply(this, args);
+                inThrottle = true;
+                setTimeout(() => inThrottle = false, limit);
+            }
+        };
+    }
+
+    // Optimized style application
+    const applyStyles = throttle(() => {
+        if (!document.head.contains(style)) {
+            document.head.appendChild(style);
+        }
+    }, 1000); // Run at most once per second
+
+    // Targeted observer for player only
+    function setupObserver() {
+        const target = document.querySelector('.html5-video-player');
+        if (!target) {
+            setTimeout(setupObserver, 500);
+            return;
+        }
+
+        const observer = new MutationObserver(applyStyles);
+        observer.observe(target, {
+            childList: true,
+            subtree: true,
+            attributeFilter: ['class']
+        });
+
+        // Initial application
+        applyStyles();
+
+        return observer;
+    }
+
+    // Initialization
+    function init() {
+        const observer = setupObserver();
+
+        // Cleanup
+        window.addEventListener('unload', () => {
+            observer?.disconnect();
+        });
+    }
+
+    // Start when ready
+    if (document.readyState === 'complete' || document.readyState === 'interactive') {
+        init();
+    } else {
+        document.addEventListener('DOMContentLoaded', init);
+    }
+})();
