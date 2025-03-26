@@ -10,7 +10,7 @@
    \:\  \      ~~~~\:\  \    \:\~~\        \:\  \     
     \:\__\          \:\__\    \:\__\        \:\__\    
      \/__/           \/__/     \/__/         \/__/    
-     
+```     
 This is an optimized Tampermonkey userscript that customizes the appearance of the YouTube video progress bar. It efficiently changes the progress bar's color scheme to a user-defined red color (#ff0000) with several performance optimizations:
 Key Features:
 Changes the main progress bar and scrubber button to a solid red color
